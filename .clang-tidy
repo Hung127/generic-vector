@@ -1,0 +1,72 @@
+# .clang-tidy - Detailed clang-tidy check configuration
+---
+Checks: '-*,
+  bugprone-*,
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  modernize-*,
+  performance-*,
+  readability-*,
+  hicpp-*,
+  misc-*,
+  cert-*,
+  -bugprone-easily-swappable-parameters,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -readability-magic-numbers,
+  -readability-identifier-length'
+
+WarningsAsErrors: ''
+HeaderFilterRegex: '.*'
+FormatStyle: file
+
+CheckOptions:
+  # Private members use underscore prefix
+  - key: readability-identifier-naming.PrivateMemberPrefix
+    value: '_'
+  - key: readability-identifier-naming.PrivateMemberCase
+    value: camelBack
+  
+  # Protected members use underscore prefix
+  - key: readability-identifier-naming.ProtectedMemberPrefix
+    value: '_'
+  - key: readability-identifier-naming.ProtectedMemberCase
+    value: camelBack
+  
+  # Public members no prefix
+  - key: readability-identifier-naming.PublicMemberCase
+    value: camelBack
+  
+  # Functions
+  - key: readability-identifier-naming.FunctionCase
+    value: camelBack
+  
+  # Classes
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  
+  # Parameters and variables
+  - key: readability-identifier-naming.ParameterCase
+    value: camelBack
+  - key: readability-identifier-naming.VariableCase
+    value: camelBack
+  
+  # Constants
+  - key: readability-identifier-naming.ConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ConstexprVariableCase
+    value: UPPER_CASE
+  
+  # Enum constants (not ALL_CAPS per Enum.5)
+  - key: readability-identifier-naming.EnumConstantCase
+    value: CamelCase
+  
+  # Line length
+  - key: readability-line-length.MaxLength
+    value: '100'
+  
+  # Function complexity
+  - key: readability-function-size.LineThreshold
+    value: '150'
+  - key: readability-function-size.NestingThreshold
+    value: '4'
+...
