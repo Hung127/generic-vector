@@ -11,7 +11,6 @@ namespace lib {
 /**
  * @brief Chuyển chuỗi thành số nguyên (có kiểm tra khoảng).
  *
- * Hàm phân tích buffer (sẽ loại bỏ khoảng trắng đầu/cuối trước khi phân tích),
  * nếu buffer rỗng trả về unexpected("Empty input data"), nếu định dạng không hợp lệ
  * trả về unexpected("Wrong input format"), nếu số nằm ngoài [minValue, maxValue]
  * trả về unexpected với thông báo phạm vi.

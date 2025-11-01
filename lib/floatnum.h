@@ -11,11 +11,9 @@ namespace lib {
 /**
  * @brief Phân tích chuỗi thành số thực (có kiểm tra khoảng).
  *
- * Hàm sẽ trim khoảng trắng đầu/cuối, sau đó kiểm tra định dạng bằng regex
- * (theo yêu cầu) và sử dụng std::stof để chuyển sang float. Nếu chuỗi rỗng
- * trả về unexpected("Empty input data"), nếu định dạng sai trả về
- * unexpected("Wrong input format"), nếu vượt khoảng trả về unexpected với
- * thông báo phạm vi.
+ * Hàm sẽ kiểm tra định dạng bằng regex (theo yêu cầu) và sử dụng std::stof để chuyển sang float.
+ * Nếu chuỗi rỗng trả về unexpected("Empty input data"), nếu định dạng sai trả về unexpected("Wrong
+ * input format"), nếu vượt khoảng trả về unexpected với thông báo phạm vi.
  *
  * Lưu ý: mặc định minValue và maxValue được đặt thành numeric_limits<float>::lowest()
  * và numeric_limits<float>::max() (lowest() là giá trị âm lớn nhất có thể).
