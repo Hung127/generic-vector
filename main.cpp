@@ -1,30 +1,32 @@
 #include "main.h"
 
+#include <format>
+
 #include "./Student/Student.h"
 #include "./lib/integer.h"
 #include "./lib/utils.h"
 #include "./vector/vector.h"
 
 template <class T, class MaxMinT>
-void process(const string& saluteMsg,
-             const string& getLenMsg,
+void process(const std::string& saluteMsg,
+             const std::string& getLenMsg,
              int minLenValue,
              int maxLenValue,
              int maxAttemptsLen,
              const MaxMinT& minValue,
              const MaxMinT& maxValue,
-             const string& getValueMsg,
+             const std::string& getValueMsg,
              lib::BoundedInputReaderFn<T, MaxMinT> getInputValue,
              int maxAttemptsValue,
              const T& initValue,
              lib::Operator<T> op,
-             const string& resultMsg);
+             const std::string& resultMsg);
 
 int main() {
-    cout << "Exercise 1\n";
+    std::cout << "Exercise 1\n";
     main01();
-    cout << "---------------------------------------------\n";
-    cout << "Exercise 2\n";
+    std::cout << "---------------------------------------------\n";
+    std::cout << "Exercise 2\n";
     main02();
     return 0;
 }
@@ -47,12 +49,12 @@ void main01() {
         maxAttemptsLen,
         minValueArray,
         maxValueArray,
-        format("Enter integer (between {} and {}): ", minValueArray, maxValueArray),
+        std::format("Enter integer (between {} and {}): ", minValueArray, maxValueArray),
         lib::getInt,
         maxAttemptsValue,
         initValue,
         // return the sum of a and b if b is even, else, return a
-        +[](const int& a, const int& b) -> expected<int, string> {
+        +[](const int& a, const int& b) -> std::expected<int, std::string> {
             return b % 2 == 0 ? (a + b) : a;
         },
         "The sum of all even elements is: ");
@@ -81,26 +83,26 @@ void main02() {
         maxAttemptsStudent,
         Student("", "", -1.0F),
         // return the higher gpa one in 2 students
-        +[](const Student& a, const Student& b) -> expected<Student, string> {
+        +[](const Student& a, const Student& b) -> std::expected<Student, std::string> {
             return (a < b ? b : a);
         },
         "The student with highest gpa is: ");
 }
 
 template <class T, class MaxMinT>
-void process(const string& saluteMsg,
-             const string& getLenMsg,
+void process(const std::string& saluteMsg,
+             const std::string& getLenMsg,
              int minLenValue,
              int maxLenValue,
              int maxAttemptsLen,
              const MaxMinT& minValue,
              const MaxMinT& maxValue,
-             const string& getValueMsg,
+             const std::string& getValueMsg,
              lib::BoundedInputReaderFn<T, MaxMinT> getInputValue,
              int maxAttemptsValue,
              const T& initValue,
              lib::Operator<T> op,
-             const string& resultMsg) {
+             const std::string& resultMsg) {
     lib::salute(saluteMsg);
 
     lib::vector<T> arr;
@@ -109,21 +111,22 @@ void process(const string& saluteMsg,
         lib::getValueRetry(getLenMsg, minLenValue, maxLenValue, lib::getInt, maxAttemptsLen);
 
     if (!lenPack.has_value()) {
-        lib::salute(format("Error: {}\n", lenPack.error()));
+        lib::salute(std::format("Error: {}\n", lenPack.error()));
         lib::bye();
         return;
     }
     int len = lenPack.value();
 
     for (int i = 0; i < len; i++) {
-        auto elementPack = lib::getValueRetry(format("Element {}\n", i + 1, getValueMsg),
+        // fixed format string: include getValueMsg in the output
+        auto elementPack = lib::getValueRetry(std::format("Element {}\n{}", i + 1, getValueMsg),
                                               minValue,
                                               maxValue,
                                               getInputValue,
                                               maxAttemptsValue);
 
         if (!elementPack.has_value()) {
-            lib::salute(format("Error: {}\n", elementPack.error()));
+            lib::salute(std::format("Error: {}\n", elementPack.error()));
             lib::bye();
             return;
         }
@@ -134,12 +137,12 @@ void process(const string& saluteMsg,
     auto resultPack = lib::accumulate(arr, initValue, op);
 
     if (!resultPack.has_value()) {
-        lib::salute(format("Error: {}\n", resultPack.error()));
+        lib::salute(std::format("Error: {}\n", resultPack.error()));
         lib::bye();
         return;
     }
 
-    lib::salute(format("{}{}\n", resultMsg, lib::getString(resultPack.value()).value()));
+    lib::salute(std::format("{}{}\n", resultMsg, lib::getString(resultPack.value()).value()));
 
     lib::bye();
 }

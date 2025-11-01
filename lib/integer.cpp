@@ -1,47 +1,55 @@
 #include "integer.h"
 
+#include <regex>
+#include <string>
+
 #include "utils.h"
 
-expected<int, string> lib::extractInt(const string& buffer,
-                                      const int& minValue,
-                                      const int& maxValue) {
-    static const regex INT_PATTERN(R"(^([+-]?\d+)$)");
-    smatch match;
-    if (buffer.size() == 0) {
-        return unexpected("Empty input data");
+std::expected<int, std::string> lib::extractInt(const std::string& buffer,
+                                                const int& minValue,
+                                                const int& maxValue) {
+    if (buffer.empty()) {
+        return std::unexpected("Empty input data");
     }
-    if (regex_match(buffer, match, INT_PATTERN)) {
+
+    // Dùng regex + stoi theo yêu cầu
+    static const std::regex INT_PATTERN(R"(^\s*([+-]?\d+)\s*$)");
+    std::smatch match;
+    // Một số triển khai regex_match không chấp nhận string_view trực tiếp,
+    if (std::regex_match(buffer, match, INT_PATTERN)) {
         try {
-            int res = std::stoi(match[1]);
-            if ((res < minValue) || (res > maxValue)) {
-                return unexpected(
-                    format("Number out of range, please enter integer that is between {} and {}",
-                           minValue,
-                           maxValue));
+            // match.str(1) rõ ràng lấy nhóm con chứa chữ số
+            int res = std::stoi(match.str(1));
+            if (res < minValue || res > maxValue) {
+                return std::unexpected(std::format(
+                    "Number out of range, please enter integer that is between {} and {}",
+                    minValue,
+                    maxValue));
             }
             return res;
-        } catch (const std::invalid_argument& e) {
-            return unexpected("Invaid input");
-        } catch (const std::out_of_range& e) {
-            return unexpected(
-                format("Number out of range, please enter integer that is between {} and {}",
-                       minValue,
-                       maxValue));
+        } catch (const std::invalid_argument&) {
+            // Về nguyên tắc, nếu regex đã khớp thì không vào đây,
+            // nhưng vẫn bắt để an toàn.
+            return std::unexpected("Invalid input");
+        } catch (const std::out_of_range&) {
+            return std::unexpected(
+                std::format("Number out of range, please enter integer that is between {} and {}",
+                            minValue,
+                            maxValue));
         }
     }
-    return unexpected("Wrong input format");
+
+    return std::unexpected("Wrong input format");
 }
 
-expected<int, string> lib::getInt(const string& message, const int& minValue, const int& maxValue) {
+std::expected<int, std::string> lib::getInt(const std::string& message,
+                                            const int& minValue,
+                                            const int& maxValue) {
     lib::salute(message);
 
-    string buffer;
-    getline(cin, buffer);
+    std::string buffer;
+    std::getline(std::cin, buffer);
 
-    auto result = lib::extractInt(buffer, minValue, maxValue);
-
-    if (!result.has_value()) {
-        return unexpected(result.error());
-    }
-    return result.value();
+    // Trả trực tiếp expected từ extractInt để giữ nguyên thông tin lỗi (nếu có)
+    return lib::extractInt(buffer, minValue, maxValue);
 }
