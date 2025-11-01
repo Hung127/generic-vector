@@ -1,60 +1,52 @@
 #include "floatnum.h"
 
-#include <expected>
 #include <regex>
 #include <string>
 
-#include "integer.h"
 #include "utils.h"
 
-using std::expected, std::unexpected;
-using std::regex, std::regex_match, std::smatch;
-using std::string;
-
-expected<float, string> lib::extractFloat(const string& buffer,
-                                          const float& minValue,
-                                          const float& maxValue) {
-    const regex INT_PATTERN(R"(^([+-]?\d+)$)");
-    const regex FLOAT_PATTERN(R"(^([+-]?\d+\.\d+)$)");
-
-    if (buffer.size() == 0) {
-        return unexpected("Empty input data");
+std::expected<float, std::string> lib::extractFloat(const std::string& buffer,
+                                                    const float& minValue,
+                                                    const float& maxValue) {
+    if (buffer.empty()) {
+        return std::unexpected("Empty input data");
     }
 
-    if ((regex_match(buffer, FLOAT_PATTERN)) || (regex_match(buffer, INT_PATTERN))) {
+    static const std::regex INT_PATTERN(R"(^\s*[+-]?\d+\s*$)");
+    static const std::regex FLOAT_PATTERN(R"(^\s*[+-]?\d+\.\d+\s*$)");
+
+    if (std::regex_match(buffer, FLOAT_PATTERN) || std::regex_match(buffer, INT_PATTERN)) {
         try {
             float res = std::stof(buffer);
-            if ((res < minValue) || (res > maxValue)) {
-                return unexpected(
-                    format("Number out of range, please enter float that is between {} and {}",
-                           minValue,
-                           maxValue));
+            if (res < minValue || res > maxValue) {
+                return std::unexpected(
+                    std::format("Number out of range, please enter float that is between {} and {}",
+                                minValue,
+                                maxValue));
             }
             return res;
-        } catch (const std::invalid_argument& e) {
-            return unexpected("Invaid input");
-        } catch (const std::out_of_range& e) {
-            return unexpected(
-                format("Number out of range, please enter float that is between {} and {}",
-                       minValue,
-                       maxValue));
+        } catch (const std::invalid_argument&) {
+            // Thực tế nếu regex_match khớp thì ít khi vào đây, nhưng giữ an toàn
+            return std::unexpected("Invalid input");
+        } catch (const std::out_of_range&) {
+            return std::unexpected(
+                std::format("Number out of range, please enter float that is between {} and {}",
+                            minValue,
+                            maxValue));
         }
     }
-    return unexpected("Wrong input format");
+
+    return std::unexpected("Wrong input format");
 }
 
-expected<float, string> lib::getFloat(const string& message,
-                                      const float& minValue,
-                                      const float& maxValue) {
+std::expected<float, std::string> lib::getFloat(const std::string& message,
+                                                const float& minValue,
+                                                const float& maxValue) {
     lib::salute(message);
 
-    string buffer;
-    getline(cin, buffer);
+    std::string buffer;
+    std::getline(std::cin, buffer);
 
-    auto floatPack = lib::extractFloat(buffer, minValue, maxValue);
-
-    if (!floatPack.has_value()) {
-        return unexpected(floatPack.error());
-    }
-    return floatPack.value();
+    // Trả trực tiếp expected từ extractFloat để bảo toàn thông tin lỗi (nếu có)
+    return lib::extractFloat(buffer, minValue, maxValue);
 }
