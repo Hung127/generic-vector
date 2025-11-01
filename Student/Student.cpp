@@ -6,8 +6,6 @@
 #include "../lib/floatnum.h"
 #include "../lib/utils.h"
 
-static_assert(sizeof(float) > 0, "float must exist");
-
 // Định nghĩa các hằng số tĩnh (mặc định là chuỗi rỗng / -1.0F)
 const std::string Student::DEFAULT_ID;
 const std::string Student::DEFAULT_NAME;
