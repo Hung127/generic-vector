@@ -5,6 +5,7 @@
 #include <format>
 #include <iostream>
 #include <regex>
+#include <sstream>
 #include <string>
 
 #include "../vector/vector.h"
@@ -12,6 +13,7 @@
 using std::cin, std::cout;
 using std::expected;
 using std::format;
+using std::ostringstream;
 using std::smatch, std::regex_match;
 using std::string;
 using std::unexpected;
@@ -20,27 +22,30 @@ namespace lib {
 template <class T>
 using Operator = expected<T, string> (*)(const T&, const T&);
 
+template <class T, class MaxMinT>
+using BoundedInputReaderFn = expected<T, string> (*)(const string&, const MaxMinT&, const MaxMinT&);
+
 template <class T>
 using Condition = bool (*)(const T&);
 
-template <class T>
-using extractBuffer = expected<T, string> (*)(const string&, const T&, const T&);
+// template <class T>
+// using extractBuffer = expected<T, string> (*)(const string&, const T&, const T&);
 
-template <class T>
-expected<T, string> getValue(const string& message,
-                             const T& minValue,
-                             const T& maxValue,
-                             extractBuffer<T> extract);
-
-template <class T>
+template <class T, class MaxMinT>
 expected<T, string> getValueRetry(const string& message,
-                                  const T& minValue,
-                                  const T& maxValue,
-                                  extractBuffer<T> extract,
+                                  const MaxMinT& minValue,
+                                  const MaxMinT& maxValue,
+                                  BoundedInputReaderFn<T, MaxMinT> getInput,
                                   int maxAttempts = 5);
 
 template <class T>
 expected<T, string> accumulate(const lib::vector<T>& v, const T& init, Operator<T> op);
+
+template <class T>
+expected<string, string> getString(const T& value);
+
+void salute(const std::string& s);
+void bye();
 
 }  // namespace lib
 
@@ -57,48 +62,41 @@ expected<T, string> lib::accumulate(const lib::vector<T>& v, const T& init, lib:
     return result;
 }
 
-template <class T>
-expected<T, string> lib::getValue(const string& message,
-                                  const T& minValue,
-                                  const T& maxValue,
-                                  extractBuffer<T> extract) {
-    cout << message;
-
-    string buffer;
-    getline(cin, buffer);
-
-    auto result = extract(buffer, minValue, maxValue);
-
-    if (!result.has_value()) {
-        return unexpected(result.error());
-    }
-
-    return result.value();
-}
-
-template <class T>
+template <class T, class MaxMinT>
 expected<T, string> lib::getValueRetry(const string& message,
-                                       const T& minValue,
-                                       const T& maxValue,
-                                       extractBuffer<T> extract,
+                                       const MaxMinT& minValue,
+                                       const MaxMinT& maxValue,
+                                       lib::BoundedInputReaderFn<T, MaxMinT> getInput,
                                        int maxAttempts) {
     int failedCounts = 0;
 
     while (failedCounts < maxAttempts) {
-        auto result = getValue(message, minValue, maxValue, extract);
+        auto result = getInput(message, minValue, maxValue);
+
         if (!result.has_value()) {
             failedCounts++;
-            cout << "Error: " << result.error() << "\nYou have " << maxAttempts - failedCounts
-                 << " times left\n";
+            lib::salute(format("Error: {}\n", result.error()));
             if (failedCounts < maxAttempts) {
-                cout << "Please try again\n";
+                cout << "\nYou have " << maxAttempts - failedCounts
+                     << " times left\n Please try again\n";
             }
         } else {
             return result.value();
         }
     }
 
+    if (maxAttempts == 1) {
+        return unexpected("Failed in getting input");
+    }
+
     return unexpected(format("Exceeded the max attempts: {}", maxAttempts));
+}
+
+template <class T>
+expected<string, string> lib::getString(const T& value) {
+    ostringstream os;
+    os << value;
+    return os.str();
 }
 
 #endif  // !_LIB_UTILS_H_

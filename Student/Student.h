@@ -1,6 +1,7 @@
 #ifndef _STUDENT_H_
 #define _STUDENT_H_
 
+#include <expected>
 #include <iostream>
 #include <ostream>
 #include <string>
@@ -20,6 +21,10 @@ public:
     [[nodiscard]] std::string getFullname() const;
     [[nodiscard]] float getGPA() const;
 
+    static std::expected<Student, std::string> getStudent(const std::string& message,
+                                                          const float& minGPA,
+                                                          const float& maxGPA);
+
     // Constructor
     Student(const std::string& id, const std::string& name, float gpa);
 
@@ -29,5 +34,6 @@ public:
 
 std::ostream& operator<<(std::ostream& os, const Student& student);
 bool operator<(const Student& student1, const Student& student2);
+bool operator<(const Student& student1, const float& floatnum);
 
 #endif  // !_STUDENT_H_

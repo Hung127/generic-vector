@@ -11,10 +11,14 @@
 
 namespace lib {
 std::expected<float, std::string> extractFloat(
-        const std::string& buffer,
-        const float& minValue = std::numeric_limits<float>::min(),
-        const float& maxValue = std::numeric_limits<float>::max()
-    );
-}
+    const std::string& buffer,
+    const float& minValue = std::numeric_limits<float>::min(),
+    const float& maxValue = std::numeric_limits<float>::max());
+
+std::expected<float, std::string> getFloat(
+    const std::string& message,
+    const float& minValue = std::numeric_limits<float>::min(),
+    const float& maxValue = std::numeric_limits<float>::max());
+}  // namespace lib
 
 #endif  // !_LIB_FLOAT_H_
